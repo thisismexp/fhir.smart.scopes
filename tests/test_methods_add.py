@@ -1,6 +1,6 @@
 import pytest
 
-from src.scopes import scopes
+from src.fhir.smart.scopes import scopes
 
 
 def test_add():

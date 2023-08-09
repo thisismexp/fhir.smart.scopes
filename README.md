@@ -1,4 +1,8 @@
 # fhir.smart.scopes
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fhir.smart.scopes)
+![PyPI - License](https://img.shields.io/pypi/l/fhir.smart.scopes)
+
+
 A simple wrapper around [SMART on FHIR scopes](http://hl7.org/fhir/smart-app-launch/STU2.1/scopes-and-launch-context.html#scopes-for-requesting-fhir-resources) to treat them as Python 
 sets.
 

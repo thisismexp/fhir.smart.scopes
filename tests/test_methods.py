@@ -1,4 +1,4 @@
-from src.scopes import scopes
+from src.fhir.smart.scopes import scopes
 
 a = scopes('openid patient/Encounter.crud')
 b = scopes('launch/patient patient/Encounter.uds')

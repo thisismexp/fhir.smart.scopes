@@ -1,6 +1,6 @@
 import pytest
 
-from src.scopes import scopes, ALL_RESOUCES
+from src.fhir.smart.scopes import scopes, ALL_RESOUCES
 
 
 def test_construction():
