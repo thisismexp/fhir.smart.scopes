@@ -25,7 +25,7 @@ def test_str():
     assert len(s) == len(ALL_RESOUCES)
     assert str(s) == 'user/*.r'
     s.remove('user/Medication.r')
-    assert len(s) == len(ALL_RESOUCES) -1
+    assert len(s) == len(ALL_RESOUCES) - 1
     assert len(str(s)) > len('user/*.r')
 
 

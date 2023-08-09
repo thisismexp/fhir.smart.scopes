@@ -1,6 +1,6 @@
 import pytest
 
-from scopes import scopes, ALL_RESOUCES
+from scopes import scopes
 
 
 def test_add():

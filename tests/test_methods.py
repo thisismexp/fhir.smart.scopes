@@ -1,4 +1,4 @@
-from scopes import scopes, ALL_RESOUCES
+from scopes import scopes
 
 a = scopes('openid patient/Encounter.crud')
 b = scopes('launch/patient patient/Encounter.uds')
@@ -34,7 +34,7 @@ def test_union():
 
 
 def test_symmetric_difference():
-    assert type(a.symmetric_difference(b)) == scopes and type(a ^ b) == scopes
+    assert type(a.symmetric_difference(b)) is scopes and type(a ^ b) is scopes
     assert len(a.symmetric_difference(b)) == 5
     assert a ^ b == scopes('openid launch/patient patient/Encounter.crs')
     assert a ^ d == a
@@ -43,7 +43,7 @@ def test_symmetric_difference():
 def test_symmetric_difference_update():
     _a = a.copy()
     _a.symmetric_difference_update(b)
-    assert type(_a) == scopes
+    assert type(_a) is scopes
     assert _a == a.symmetric_difference(b)
     __a = a.copy()
     __a ^= b
@@ -53,7 +53,7 @@ def test_symmetric_difference_update():
 def test_difference_update():
     _a = a.copy()
     _a.difference_update(b)
-    assert type(_a) == scopes
+    assert type(_a) is scopes
     assert _a == a.difference(b)
     __a = a.copy()
     __a -= b
@@ -63,7 +63,7 @@ def test_difference_update():
 def test_intersection_update():
     _a = a.copy()
     _a.intersection_update(b)
-    assert type(_a) == scopes
+    assert type(_a) is scopes
     assert _a == a.intersection(b)
     __a = a.copy()
     __a &= b

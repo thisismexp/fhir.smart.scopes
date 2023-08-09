@@ -31,7 +31,6 @@ def test_malformed_init():
 def test_alternative_init():
     scopes([('patient', 'Observation', 'r')])
     scopes(['launch'])
-    # x = scopes(['launch', 'offline_access'])
     ...
 
 
@@ -42,9 +41,3 @@ def test_simple_init():
     assert len(scopes('patient/*.r')) == len(ALL_RESOUCES)
     assert len(scopes('launch/patient')) == 1
     assert len(scopes('launch/patient launch/patient')) == 1
-
-#
-# def test_in():
-#     s = scopes('offline_access')
-#     #    s.__getitem__('offline_access')
-#     'offline_access' in s
