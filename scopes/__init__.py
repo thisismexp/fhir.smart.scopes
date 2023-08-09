@@ -146,7 +146,7 @@ class scopes(set):
 
     def update(self, *other):
         for o in other:
-            if type(o) != scopes:
+            if type(o) is not scopes:
                 raise ValueError
             self._add_tuples(o._get_tuples())
 
