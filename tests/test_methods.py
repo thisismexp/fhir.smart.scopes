@@ -1,4 +1,4 @@
-from scopes import scopes
+from src.scopes import scopes
 
 a = scopes('openid patient/Encounter.crud')
 b = scopes('launch/patient patient/Encounter.uds')

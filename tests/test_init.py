@@ -1,6 +1,6 @@
 import pytest
 
-from scopes import scopes, ALL_RESOUCES
+from src.scopes import scopes, ALL_RESOUCES
 
 
 def test_construction():

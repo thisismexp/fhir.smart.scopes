@@ -1,6 +1,6 @@
 import pytest
 
-from scopes import scopes
+from src.scopes import scopes
 
 
 def test_discard():

@@ -40,23 +40,24 @@ permit = scopes(requested).intersection(allowed)
 
 
 ## Interface 
-All functions that would be expected for a set type can be used, except the
-following:
+All functions that would be expected for a 
+[set type](https://python-reference.readthedocs.io/en/latest/docs/sets/) 
+can be used, except the below-mentioned:
 - Constructors: `scopes()` is the only supported initialization method 
 available, set comprehension and literal syntax cannot be used. Initialize
 ether with no arguments to obtain an empty scopes set, with a space seperated
 string or an iterable with scopes.  
 Only valid scopes can be initialized.
-```python
-scopes()
-# 
-scopes('fhirUser openid')
-# fhirUser openid
-scopes(['fhirUser', 'patient/Observation.cru'])
-# patient/Observation.cru fhirUser
-scopes('invalidScope')
-# Traceback [...] ValueError
-```
+  ```python
+  scopes()
+  # 
+  scopes('fhirUser openid')
+  # fhirUser openid
+  scopes(['fhirUser', 'patient/Observation.cru'])
+  # patient/Observation.cru fhirUser
+  scopes('invalidScope')
+  # Traceback [...] ValueError
+  ```
 - Methods:
   - adding elements with `add` and `update` as you would expect them to work
   - deleting elements with `discard`, `remove`, `pop`, `clear`
