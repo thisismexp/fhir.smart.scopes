@@ -1,168 +1,100 @@
 # fhir.smart.scopes
-A simple python class allowing for [SMART on FHIR scopes](http://hl7.org/fhir/smart-app-launch/STU2.1/scopes-and-launch-context.html#scopes-for-requesting-fhir-resources)
-to used as they were Python set objects. This implementation is based on
-Smart App Launch Implementation Guide (v2.1.0: STU 2.1) which is based on 
-FHIR R4. For example:
-```python
->>> a = scopes('launch offline_access patient/Medication.rs')
->>> b = scopes('patient/Medication.cruds')
->>> a & b
-patient/Medication.rs
->>> a | b
-patient/Medication.cruds offline_access launch
+A simple wrapper around [SMART on FHIR scopes](http://hl7.org/fhir/smart-app-launch/STU2.1/scopes-and-launch-context.html#scopes-for-requesting-fhir-resources) to treat them as Python 
+sets.
+
+This implementation is based on Smart App Launch Implementation Guide 
+(v2.1.0: STU 2.1) which in turn is based on FHIR R4. Finer grained 
+**query parameters** within scopes **are not supported**, as there is
+obvious easy way to implement them (e.g. combine different search parameters 
+and preserve their overall intention) and further our use-case currently does
+not provide a need for this functionality (feel encouraged to open a PR).
+
+## Installation
+```shell
+pip install fhir.smart.scopes
 ```
-Currently finer grained query parameters within scopes are not supported.
-~~Support for finer grained constraints using search parameters is rather limited
-since it is not trivial to e.g. combine different search parameters and 
-preserve their overall intention (feel free to open a PR with ideas).~~
+
+## Usage
+```python
+from fhir.smart.scopes import scopes
+
+a = scopes('launch offline_access patient/Medication.rs')
+b = scopes('patient/Medication.cruds')
+a & b
+# patient/Medication.rs
+a | b
+# patient/Medication.cruds offline_access launch
+```
+The initial usecase expanded from a SMART on FHIR auth server implementation 
+were we wanted to check the requested scopes against a predefined set of scopes
+and optionally restrict a set of scopes by the predefined set:
+```python
+from fhir.smart.scopes import scopes
+
+allowed = scopes('fhirUser launch/patient offline_access patient/Patient.rs patient/Medication.rs')
+requested = 'launch/patient online_access patient/*.cruds'
+
+permit = scopes(requested).intersection(allowed)
+# launch/patient patient/Medication.rs patient/Patient.rs
+```
 
 
 ## Interface 
-Create by using the type constructor with ether nothing, a space seperated string or an iterable.
+All functions that would be expected for a set type can be used, except the
+following:
+- Constructors: `scopes()` is the only supported initialization method 
+available, set comprehension and literal syntax cannot be used. Initialize
+ether with no arguments to obtain an empty scopes set, with a space seperated
+string or an iterable with scopes.  
+Only valid scopes can be initialized.
+```python
+scopes()
+# 
+scopes('fhirUser openid')
+# fhirUser openid
+scopes(['fhirUser', 'patient/Observation.cru'])
+# patient/Observation.cru fhirUser
+scopes('invalidScope')
+# Traceback [...] ValueError
+```
+- Methods:
+  - adding elements with `add` and `update` as you would expect them to work
+  - deleting elements with `discard`, `remove`, `pop`, `clear`
+  - obtain boolean information about scopes by `issuperset` (``), `issubset`
+  and `isdisjoint`
+  - use set operations `difference`, `intersection`, `symmetric_difference`, 
+  `union` and assignments `difference_update`, `intersection_update`, 
+  `symmetric_difference_update`
+  - copy the scopes set with `copy`
+- Operators:
+  - add elements with `|=`
+  - relational operators `==`, `!=`, `<=`, `<`, `>=`, `>`
+  - operations `-`, `&`, `^`, `|`
+  - assignment operations `-=`, `&=`, `^=`
+- Functions:
+  - len is supported and gives you the amount of 'atomic scopes' see below TODO
+  - following function are somewhat meaningless in this context and therefore
+  **not supported** (undefined behaviour): `min`, `max`, `sum`, `sorted`, 
+  `reversed`, `all`, `any`, `enumerate`, `zip`
 
+## Inner workings
+This wrapper works by handling scopes as tuples of three things:
+- Level or Top-level scope: e.g. *fhirUser*, *launch/Patient* or the *patient*
+part of *patient/\*.cruds*
+- Resource: a FHIR resource that is affected or None in the case of a top-level
+scope, e.g. *Observation*
+- Permission: one of the five permissions in *cruds*  
 
-## Constructors
-see https://python-reference.readthedocs.io/en/latest/docs/sets/
-- [x] set()
- Returns a set type initialized from iterable.
+Internally scopes get stored in the super's set as these three-valued tuples
+(atomic scopes) and this projects scopes type is responsible for validating 
+given scope strings, extracting all atomic scope tuples out of them, and then
+hide this inner structure when using set operations.
 
-- [x] not supported ~~{} set comprehension Returns a set based on existing iterables.~~
-
-- [x] not supported  ~~literal syntax
-Initializes a new instance of the set type.~~
-
-## Methods
-### Adding Elements
-- [x] add
-Adds a specified element to the set.
-
-- [x] update
-Adds specified elements to the set.
-
-### Deleting
-- [x] discard
-Removes an element from the set.
-
-- [x] remove
-Removes an element from the set (raises KeyError if not found).
-
-- [x] pop
-Removes and returns an arbitrary element from the set.
-
-- [x] clear
-Removes all elements from the set.
-
-### Information
-- [x] issuperset
-Returns a Boolean stating whether the set contains the specified set or iterable.
-
-- [x] issubset
-Returns a Boolean stating whether the set is contained in the specified set or iterable.
-
-- [x] isdisjoint
-Returns a Boolean stating whether the set contents do not overlap with the specified set or iterable.
-Set Operations
-
-- [x] difference
-Returns a new set with elements in the set that are not in the specified iterables.
-
-- [x] intersection
-Returns a new set with elements common to the set and the specified iterables.
-
-- [x] symmetric_difference
-Returns a new set with elements in either the set or the specified iterable but not both.
-
-- [x] union
-Returns a new set with elements from the set and the specified iterables.
-
-### Set Operations Assignment
-- [x] (implicit by set class) difference_update
-Updates the set, removing elements found in the specified iterables.
-
-- [x] (implicit by set class) intersection_update
-Updates the set, keeping only elements found in it and the specified iterables.
-
-- [x] (implicit by set class) symmetric_difference_update
-Updates the set, keeping only elements found in either set or the specified iterable, but not in both.
-
-### Copying
-- [x] copy
-Returns a copy of the set.
-
-## Set Operators
-### Adding Elements
-- [x] |= (update)
-Adds elements from another set.
-
-### Relational Operators
-- [x] (implicit by set class) == (is equal)
-Returns a Boolean stating whether the set has the same elements as the other set.
-
-- [x] (implicit by set class) != (is not equal)
-Returns a Boolean stating whether the set has different elements as the other set.
-
-- [x] (implicit by set class) <= (issubset)
-Returns a Boolean stating whether the set is contained in the other set.
-
-- [x] (implicit by set class) < (issubset proper)
-Returns a Boolean stating whether the set is contained in the specified set and that the sets are not equal.
-
-- [x] (implicit by set class) ' >= (issuperset)
-Returns a Boolean stating whether the set contains the other set.
-
-- [x] (implicit by set class) ' > (issuperset proper)
-Returns a Boolean stating whether the set contains the other set and that the sets are not equal.
-Set Operations
-
-- [x] ' - (difference)
-Returns a new set with elements in the set that are not in the other set.
-
-- [x] & (intersection)
-Returns a new set with elements common to the set and the other set.
-
-- [x] ^ (symmetric_difference)
-Returns a new set with elements in either the set or the other set but not both.
-
-- [x] | (union)
-Returns a new set with elements from the set and the other set.
-
-### Set Operations Assignment
-- [x] (implicit by set class) -= (difference_update)
-Updates the set, removing elements found in the other set.
-
-- [x] (implicit by set class) &= (intersection_update)
-Updates the set, keeping only elements found in it and the other set.
-
-- [x] (implicit by set class) ^= (symmetric_difference_update)
-Updates the set, keeping only elements found in either set or the other set, but not in both.
-
-## Functions
-- [x] len
-Returns an int type specifying number of elements in the collection.
-
-- [ ] min
-Returns the smallest item from a collection.
-
-- [ ] max
-Returns the largest item in an iterable or the largest of two or more arguments.
-
-- [ ] sum
-Returns a total of the items contained in the iterable object.
-
-- [ ] sorted
-Returns a sorted list from the iterable.
-
-- [ ] reversed
-Returns a reverse iterator over a sequence.
-
-- [ ] all
-Returns a Boolean value that indicates whether the collection contains only values that evaluate to True.
-
-- [ ] any
-Returns a Boolean value that indicates whether the collection contains any values that evaluate to True.
-
-- [ ] enumerate
-Returns an enumerate object.
-
-- [ ] zip
-Returns a list of tuples, where the i-th tuple contains the i-th element from each of the argument sequences or iterables.
+As an example, the following calls reveals this internal structure:
+```python
+>>> s = scopes('fhirUser patient/Patient.rs')
+>>> s
+fhirUser patient/Patient.rs
+>>> set(s)
+{('fhirUser', None, None), ('patient', 'Patient', 's'), ('patient', 'Patient', 'r')}
+```
